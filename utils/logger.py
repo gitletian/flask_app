@@ -14,8 +14,7 @@ class InfoFilter(logging.Filter):
         :return:
         """
         if logging.INFO <= record.levelno < logging.ERROR:
-            # 已经是INFO级别了
-            # 然后利用父类, 返回 1
+            # 如果 是 INFO 或 WARNING 返回 ture
             return super().filter(record)
         else:
             return False
@@ -32,6 +31,5 @@ class RotatingFileHandlerUser(RotatingFileHandler):
 
 # 初始化日志组件
 def logger():
-    print(current_app.name)
     return current_app.logger
 

@@ -3,8 +3,9 @@
 
 from app.dept import dept
 from utils.logger import logger
-from flask import jsonify, abort, Response
+from flask import jsonify, abort, Response, current_app
 import json
+from . import apis
 
 
 dept_data = [
@@ -25,11 +26,12 @@ def get(id):
         if int(dt['id']) == id:
             return jsonify(status='success', dept=dt)
 
-    # return jsonify(status='failed', msg='dept not found')
     logger().error("请求的 数据数据为:{0}".format(id))
     logger().info("info === 请求的 数据数据为:{0}".format(id))
-    # tt = 1 / 0
-    abort(403)
+
+    data = apis.all_dept()
+
+    return jsonify(data)
 
 
 @dept.route('/depts', methods=['GET', ])

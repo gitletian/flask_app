@@ -7,6 +7,8 @@ from error import error
 from app.dept import dept
 from app.user import user
 
+from app.models import db
+
 
 def create_app(config_name="default"):
     app = Flask(__name__)
@@ -21,6 +23,8 @@ def create_app(config_name="default"):
     app.register_blueprint(dept, url_prefix='/dept')
 
     # 注册其他组件
+    # 初始化数据 model 组件
+    db.init_app(app)
 
     return app
 
