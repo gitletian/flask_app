@@ -2,7 +2,7 @@
 # __author__: ""
 import os
 from logging import INFO, ERROR
-from utils.logger import RotatingFileHandlerUser
+from app.utils.logger import RotatingFileHandlerUser
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -19,6 +19,17 @@ class Config:
 
     # redis 配置参数
     REDIS_CONF = dict(host='172.16.1.100', port=6379)
+
+    # babel 国际化
+    BABEL_DEFAULT_LOCALE = 'zh'
+    BABEL_DEFAULT_TIMEZONE = 'CST'
+
+    # 每页多少条
+    PER_PAGE = 10
+    # 上传文件配置
+    UPLOAD_FOLDER = os.path.join(basedir, 'static/upload')
+    ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+    MAX_CONTENT_LENGTH = 512 * 1024
 
     # 日志配置参数
     LOG_PATH = os.path.join(basedir, 'logs')

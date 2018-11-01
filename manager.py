@@ -4,13 +4,14 @@ import os
 from app import create_app
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
+# 导入 db, 同时加载了 models 文件,
+# from app import db 是无法加载 models文件, 所以无法创建 表
 from app.models import db
 
 
 # 创建 app
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)  # 管理 app
-
 
 '''
 集成Python Shell:

@@ -2,8 +2,8 @@
 # __author__: ""
 
 from app.dept import dept
-from utils.logger import logger
-from flask import jsonify, abort, Response, current_app
+from app.utils.logger import logger
+from flask import jsonify
 import json
 from . import apis
 
