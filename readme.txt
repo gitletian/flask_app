@@ -32,7 +32,7 @@
 
        最后的最后，提醒下大家，translations目录必须是跟你 Flask 的app应用对象在同一目录下，如果你的app对象是放在某个包里，那translations目录也必须放在那个包下。
 
-   2、
+#
 
 
 

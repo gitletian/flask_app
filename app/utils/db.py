@@ -1,11 +1,28 @@
 # coding: utf-8
 # __author__ = "john.pan"
 
-from app import db
 from sqlalchemy.sql import text
-from flask import current_app
+from flask import g, current_app
 from redis import Redis
 import threading
+from app import db
+
+# def get_db(name=None):
+#     db = getattr(g, '_database', None)
+#     if db is None:
+#         db = g._database = db.get_engine(bind=name).connect()
+#     return db
+#
+#
+# @current_app.teardown_appcontext
+# def close_connection(exception):
+#     db = getattr(g, '_database', None)
+#     if db is not None:
+#         db.close()
+
+
+# def make_dicts(cursor, row):
+#     return [(cursor.description[idx][0], value) for idx, value in enumerate(row)]
 
 
 class DB:
