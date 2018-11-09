@@ -31,6 +31,16 @@ class Config:
     ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
     MAX_CONTENT_LENGTH = 512 * 1024
 
+    # 邮箱配置
+    # If use QQ email, please see http://service.mail.qq.com/cgi-bin/help?id=28 firstly.
+    MAIL_SERVER = 'smtp.qq.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    FORUM_MAIL_SUBJECT_PREFIX = 'NaHan'
+    FORUM_MAIL_SENDER = 'Nahan <selfboot@qq.com>'
+
     # 日志配置参数
     LOG_PATH = os.path.join(basedir, 'logs')
     os.path.exists(LOG_PATH) or os.mkdir(LOG_PATH)
