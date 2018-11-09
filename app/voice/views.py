@@ -196,8 +196,7 @@ def appendix(tid):
                 'voice/append.html', topic=topic, message=message)
 
         topic_append = TopicAppend(append_c, tid)
-        topic_append.content_rendered = add_user_links_in_content(
-            topic_append.content_rendered)
+        topic_append.content_rendered = add_user_links_in_content(topic_append.content_rendered)
         db.session.add(topic_append)
         db.session.commit()
         topic.add_append(topic_append.id)
@@ -303,7 +302,7 @@ def search(keywords):
     all_topics = (Topic.query.filter(
         and_(*[Topic.title_content.like("%" + k + "%") for k in keys])).all())
 
-    print("AAA", all_topics[0].topic_deleted, all_topics[0].deleted)
+    len(all_topics) and print("AAA", all_topics[0].topic_deleted, all_topics[0].deleted)
     all_topics = list(filter(lambda x: not x.deleted, all_topics))
     all_topics.sort(key=lambda x: x.time_created, reverse=True)
 

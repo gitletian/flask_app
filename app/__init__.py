@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from config import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_babel import Babel
+from flask_mail import Mail
 
 # 加载 db
 db = SQLAlchemy()
@@ -16,6 +17,9 @@ login_manager.login_view = 'auth.login'
 
 # 加载国际化
 babel = Babel()
+
+# 邮件 组件
+mail = Mail
 
 
 def create_app(config_name="default"):
@@ -30,6 +34,7 @@ def create_app(config_name="default"):
     db.init_app(app)
     login_manager.init_app(app)
     babel.init_app(app)
+    # mail.init_app(app)
 
     # 注册蓝图, 必须放在 create_app 中导入, 否在 在 user中无法识别 db
     from .user import user as user_blueprint

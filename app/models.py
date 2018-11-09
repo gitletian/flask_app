@@ -27,7 +27,7 @@ class User(UserMixin, db.Model):
     deleted = db.Column(db.Boolean, default=False)
 
     website = db.Column(db.String(64), nullable=True)
-    avatar_url = db.Column(db.String(64), default="http://www.gravatar.com/avatar/")
+    avatar_url = db.Column(db.String(64), default="http://www.maprcpoint.com/flask_app/")
 
     last_login = db.Column(db.DateTime(), default=datetime.utcnow)
     date_joined = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -123,13 +123,56 @@ class User(UserMixin, db.Model):
 
         self.deleted = status
         # Update status of this user's topics, comments
-        map(lambda x: x.process(status, cause=1), self.extract_topics())
-        map(lambda x: x.process(status, cause=1), self.extract_comments())
+        list(map(lambda x: x.process(status, cause=1), self.extract_topics()))
+        list(map(lambda x: x.process(status, cause=1), self.extract_comments()))
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class Node(db.Model):
+    def __init__(self, title, description):
+        self.title = title
+        self.description = description
+
+    __tablename__ = "node"
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(64))
+    description = db.Column(db.Text())
+    deleted = db.Column(db.Boolean(), default=False)
+    # Keep all the topics id the node has.
+    topics = db.Column(db.Text(), default="")
+
+    def __unicode__(self):
+        return self.title
+
+    def add_topic(self, tid):
+        if self.topics:
+            self.topics += ",%d" % tid
+        else:
+            self.topics = "%d" % tid
+
+    def extract_topics(self):
+        if self.topics:
+            topics_id = list(map(int, self.topics.split(',')))
+            all_topics = [Topic.query.filter_by(id=i).first() for i in topics_id]
+            return all_topics
+        else:
+            return []
+
+    def process(self, status):
+        """ Reset the status of the node and relevant topics.
+        """
+        # No need to do the relevant modification.
+        if self.deleted == status:
+            return
+
+        self.deleted = status
+        list(map(lambda x: x.process(status, 0), self.extract_topics()))
+        # Remember to do commit in the caller function.
 
 
 class Topic(db.Model):
@@ -242,10 +285,10 @@ class Topic(db.Model):
 
         # Update relevant comments, appendix, notify
         setattr(self, target[cause], status)
-        map(lambda x: x.process(self.deleted, cause=0), self.extract_comments())
-        map(lambda x: x.process(self.deleted, cause=0), self.extract_appends())
+        list(map(lambda x: x.process(self.deleted, cause=0), self.extract_comments()))
+        list(map(lambda x: x.process(self.deleted, cause=0), self.extract_appends()))
         notifies = Notify.query.filter_by(topic_id=self.id).all()
-        map(lambda x: x.process(self.deleted, cause=0), notifies)
+        list(map(lambda x: x.process(self.deleted, cause=0), notifies))
 
 
 class TopicAppend(db.Model):
@@ -292,7 +335,7 @@ class TopicAppend(db.Model):
 
         setattr(self, target[cause], status)
         notifies = Notify.query.filter_by(append_id=self.id).all()
-        map(lambda x: x.process(self.deleted, cause=1), notifies)
+        list(map(lambda x: x.process(self.deleted, cause=1), notifies))
 
 
 class Comment(db.Model):
@@ -353,54 +396,10 @@ class Comment(db.Model):
         # Remember don't forget setattr here.
         setattr(self, target[cause], status)
         notifies = Notify.query.filter_by(comment_id=self.id).all()
-        map(lambda x: x.process(self.deleted, cause=2), notifies)
+        list(map(lambda x: x.process(self.deleted, cause=2), notifies))
 
         if cause == 2:
             self.topic().reply_count += -1 if status else 1
-
-
-class Node(db.Model):
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
-
-    __tablename__ = "node"
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.String(64))
-    description = db.Column(db.Text())
-    deleted = db.Column(db.Boolean(), default=False)
-    # Keep all the topics id the node has.
-    topics = db.Column(db.Text(), default="")
-
-    def __unicode__(self):
-        return self.title
-
-    def add_topic(self, tid):
-        if self.topics:
-            self.topics += ",%d" % tid
-        else:
-            self.topics = "%d" % tid
-
-    def extract_topics(self):
-        if self.topics:
-            topics_id = list(map(int, self.topics.split(',')))
-            all_topics = [Topic.query.filter_by(id=i).first() for i in topics_id]
-            return all_topics
-        else:
-            return []
-
-    def process(self, status):
-        """ Reset the status of the node and relevant topics.
-        """
-        # No need to do the relevant modification.
-        if self.deleted == status:
-            return
-
-        self.deleted = status
-        map(lambda x: x.process(status, 0), self.extract_topics())
-        # Remember to do commit in the caller function.
-
 
 class Notify(db.Model):
     def __init__(self, sender_id, receiver_id, topic_id, comment_id=None, append_id=None):

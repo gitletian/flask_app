@@ -12,6 +12,7 @@ from datetime import datetime
 from . import user
 from ..models import User
 from .. import db
+from app.utils.email import send_email
 
 
 alphanumeric = re.compile(r'^[0-9a-zA-Z\_]*$')
@@ -124,9 +125,9 @@ def password_reset_request():
             # Clear the token status to "True".
             u.is_password_reset_link_valid = True
             db.session.commit()
-            # send_email(u.email, 'Reset Your Password',
-            #            'user/passwd_reset_email',
-            #            user=u, token=token)
+            send_email(u.email, 'Reset Your Password',
+                       'user/passwd_reset_email',
+                       user=u, token=token)
 
             return render_template('user/passwd_reset_sent.html')
 
@@ -265,14 +266,15 @@ def setting_avatar():
 
         allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
         upload_folder = current_app.config['UPLOAD_FOLDER']
+        image_path = os.path.join(upload_folder, "%d.png" % current_user.id)
+
         file_appendix = _file.filename.rsplit('.', 1)[1]
         if _file and '.' in _file.filename and file_appendix in allowed_extensions:
             # Resize the image.
             im = Image.open(_file)
             im.thumbnail((128, 128), Image.ANTIALIAS)
-            im.save("%s/%d.png" % (upload_folder, current_user.id), 'PNG')
+            im.save(image_path, 'PNG')
 
-            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%d.png" % current_user.id)
             unique_mark = os.stat(image_path).st_mtime
             current_user.avatar_url = url_for('static', filename='upload/%d.png' % current_user.id, t=unique_mark)
             db.session.commit()

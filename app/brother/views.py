@@ -213,8 +213,8 @@ def topic_table_list():
     start = int(request.args.get('iDisplayStart', 0))
 
     topics = Topic.query.filter_by(deleted=status).all()
-    map(lambda x: setattr(x, 'username', x.user().username), topics)
-    map(lambda x: setattr(x, 'node_title', x.node().title), topics)
+    list(map(lambda x: setattr(x, 'username', x.user().username), topics))
+    list(map(lambda x: setattr(x, 'node_title', x.node().title), topics))
 
     # Filter the topic according to the keywords.
     key = request.args.get('sSearch')
@@ -232,9 +232,9 @@ def topic_table_list():
     data['iTotalRecords'] = Topic.query.count()
 
     topics = topics[start:start + length]
-    map(lambda x: setattr(x, 'more',
+    list(map(lambda x: setattr(x, 'more',
                           '<a href="%s" class="label label-success">%s</a>' %
-                          (url_for('brother.topic_more', tid=x.id), gettext('more'))), topics)
+                          (url_for('brother.topic_more', tid=x.id), gettext('more'))), topics))
     data['aaData'] = [[t.id, t.title, t.reply_count, t.username, t.node_title, t.more] for t in topics]
 
     return jsonify(**data)
@@ -258,7 +258,7 @@ def node_table_list():
     # Filter the users according to the keywords.
     key = request.args.get('sSearch')
 
-    map(lambda x: setattr(x, 'count', 0 if not x.topics else len(x.topics.split(","))), nodes)
+    list(map(lambda x: setattr(x, 'count', 0 if not x.topics else len(x.topics.split(","))), nodes))
     if key:
         nodes = list(filter(lambda x: (key == str(x.id) or key in x.title or
                                        key in x.description or key == str(x.count)), nodes))
@@ -271,9 +271,9 @@ def node_table_list():
     data['iTotalDisplayRecords'] = len(nodes)
     data['iTotalRecords'] = Node.query.count()
     nodes = nodes[start:start + length]
-    map(lambda x: setattr(x, 'more',
+    list(map(lambda x: setattr(x, 'more',
                           '<a href="%s" class="label label-success">%s</a>' %
-                          (url_for('brother.node_more', nid=x.id), gettext('more'))), nodes)
+                          (url_for('brother.node_more', nid=x.id), gettext('more'))), nodes))
     data['aaData'] = [[n.id, n.title, n.description, n.count, n.more] for n in nodes]
 
     return jsonify(**data)
@@ -294,8 +294,8 @@ def comment_table_list():
     start = int(request.args.get('iDisplayStart', 0))
 
     comments = list(filter(lambda x: x.deleted == status, Comment.query.all()))
-    map(lambda x: setattr(x, 'username', x.user().username), comments)
-    map(lambda x: setattr(x, 'topic', x.topic().title), comments)
+    list(map(lambda x: setattr(x, 'username', x.user().username), comments))
+    list(map(lambda x: setattr(x, 'topic', x.topic().title), comments))
 
     # Filter the comments according to the keywords.
     key = request.args.get('sSearch')
@@ -329,14 +329,15 @@ def user_table_list():
     start = int(request.args.get('iDisplayStart', 0))
 
     users = User.query.filter_by(deleted=status).all()
-    map(lambda x: setattr(x, 'topics_cnt',
-                          '<a href="%s" class="label label-success">%s</a>' %
-                          (url_for('brother.user_more', uid=x.id, content='Topic'),
-                           0 if not x.topics else len(x.topics.split(',')))), users)
-    map(lambda x: setattr(x, 'comments_cnt',
+    list(map(lambda x: setattr(x, 'topics_cnt',
+                          '<a href="%s" class="label label-success">%s</a>'
+                          % (url_for('brother.user_more', uid=x.id, content='Topic'), 0 if not x.topics else len(x.topics.split(',')))
+                          ), users))
+    list(map(lambda x: setattr(x, 'comments_cnt',
                           '<a href="%s" class="label label-success">%s</a>' %
                           (url_for('brother.user_more', uid=x.id, content='Comment'),
-                           0 if not x.comments else len(x.comments.split(',')))), users)
+                           0 if not x.comments else len(x.comments.split(',')))), users))
+
     # Filter the users according to the keywords.
     key = request.args.get('sSearch')
     if key:
